@@ -21,9 +21,12 @@ symbol.info <-
   read.csv ("D:/Doktorarbeit/40 Data/Stocks/Taipan/symbol_info2.csv", 
             header=TRUE, stringsAsFactors=FALSE, comment.char="", 
             col.names=c("Symbol", "shares_out", "Name", 
-                        "Sector", "Industry", "Country", "shares_fl"), 
-            colClasses=c("character", "numeric", rep("character", 4), "numeric"))
+                        "Sector", "Industry", "Country", "shares_fl",
+                        "NMS_Date", "SSB_Date_1" ,"SSB_Date_2"),  
+            colClasses=c("character", "numeric", rep("character", 4), "numeric",
+                         rep("character",3)))
 rownames(symbol.info) <- symbol.info$Symbol
+class(symbol.info[,8:10]) <- "Date"
 
 out.suffix <- ".part4"
 

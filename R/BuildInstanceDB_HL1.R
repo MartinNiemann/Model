@@ -15,7 +15,7 @@
 
 # ----- PREP -------------------------------------------------------------------
 # path & file info
-sf.files <- list.files (path = data.path.sf, pattern = "*A.sc2")
+sf.files <- list.files (path = data.path.sf, pattern = "*.sc2")
 
 symbol.info <- 
   read.csv ("D:/Doktorarbeit/40 Data/Stocks/Taipan/symbol_info2.csv", 
@@ -28,7 +28,7 @@ symbol.info <-
 rownames(symbol.info) <- symbol.info$Symbol
 class(symbol.info[,8:10]) <- "Date"
 
-out.suffix <- ".part5"
+out.suffix <- ".part1"
 
 # ----- CORE LOOP: PROCESS SCORE FILES -----------------------------------------
 # param.filt.abs.rel <- list (c(2,6), c(2.5,6.5), c(3,7), c(3.5,7.5), c(4,8))
@@ -39,8 +39,8 @@ for (L in seq_along(param.filt.abs.rel)[1]) {
   param.filt.abs <- param.filt.abs.rel[[L]][1]
   param.filt.rel <- param.filt.abs.rel[[L]][2]
   print (c(param.filt.abs, param.filt.rel))
-for (i in 1:length(sf.files)) {
-# for (i in 1:366) {
+# for (i in 1:length(sf.files)) {
+for (i in 1:366) {
   # 1) Load current score file & HFT data --------------------------------------
   # 1a) score file
   load (paste(data.path.sf, sf.files[i], sep=""))
