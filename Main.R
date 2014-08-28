@@ -8,7 +8,10 @@
 # - Functions.R contains all helper functions defined in the project           *
 # - CalcScores.R builds overreaction score files per stock (raw & excess ret.) *
 # - BuildInstanceDB.R reads score files and builds instance data base          *
-# - Analysis.R generates key analyses based on instance database               *
+# - Analysis.R generates the analyses based on instance database #outdated#    *
+# - AnalysisPaper.R retains only the key analyses actually used in the paper   *
+# - BuildScorePanelXX.R precalculates panel variables for regression analysis  *
+# - IVREG.R outsources the IVREG functionality for the paper regressions       *
 # ******************************************************************************
 
 
@@ -83,11 +86,11 @@ options(error = expression(beep(2))) # beep on error
 options(warn = 1)                    # print warnings as they occur
 # source("R/CalcScores.R")             # calculate overreaction score --> files
 # source("R/BuildInstanceDB.R")        # read score files and build instance DB
-# source("R/BuildInstanceDB_HL.R")     # read score files and build instance DB
-# source("R/BuildScorePanel1E.R")      # read score files and build score panel
+# source("R/BuildInstanceDB_HL1.R")     # read score files and build instance DB
+# source("R/BuildScorePanel1D.R")      # read score files and build score panel
 # source("R/Analysis.R")               # generate key analyses and outputs
 
-# # check memory usage 
+# check memory usage 
 for (i in seq_along(ls())) if (object.size(get(ls()[i]))/1000000 > 1)
   print (paste(ls()[i], " ---- ", object.size(get(ls()[i]))/1000000))
 

@@ -47,9 +47,9 @@ for (i in 1:367) {
   id.vol.daily <- array (coredata(cur.x.aligned$Volume), 
                          dim=c(daybars, nrow(cur.d.x.aligned)))
   id.voldta.daily <- array (id.volume.dta, 
-                         dim=c(daybars, nrow(cur.d.x.aligned)))
+                            dim=c(daybars, nrow(cur.d.x.aligned)))
   id.voldta.daily <- sapply (1:ncol(id.voldta.daily), function(x) 
-                       lowess(id.voldta.daily[,x], f=.05)$y)
+    lowess(id.voldta.daily[,x], f=.05)$y)
   
   id.score.daily.max <- apply (id.score.daily.hi, 2, function(x) 
     max(x[11:(daybars-15)]))  
@@ -84,11 +84,11 @@ for (i in 1:367) {
     id.score.daily.min.t
   
   # 1b) hft data
-#   cur.hft.x <- Load1minHFTDataXTS (paste(data.path.HFT,
-#                                          paste(cur.symbol,".csv", sep=""), sep="/"))
-#   # create aligned HFT series (simplifies all event-bar based lookups)
-#   cur.hft.x <- cur.hft.x[index(cur.hft.x) %in% index(cur.x.aligned)]
-#   cur.hft.x.aligned <- merge (cur.hft.x, index(cur.x.aligned), fill=0)
+  #   cur.hft.x <- Load1minHFTDataXTS (paste(data.path.HFT,
+  #                                          paste(cur.symbol,".csv", sep=""), sep="/"))
+  #   # create aligned HFT series (simplifies all event-bar based lookups)
+  #   cur.hft.x <- cur.hft.x[index(cur.hft.x) %in% index(cur.x.aligned)]
+  #   cur.hft.x.aligned <- merge (cur.hft.x, index(cur.x.aligned), fill=0)
   
   # Contemporaneous DSBMOM
   # remove vola adjustment from dsb hi/lo score
@@ -103,11 +103,27 @@ for (i in 1:367) {
   id.dsbmom.daily.min.t0[which(!is.na(id.dsbmom.daily.min.t0))] <- 
     id.dsbmom.lo[id.score.daily.min.bars[which(!is.na(id.score.daily.min.bars))]]
   
+  
+  # Relative 15 min Reversal vs. DSBMOM max/min at t0  
+  id.daily.max.reversal <- id.score.daily.max.bars
+  id.daily.max.reversal[which(!is.na(id.score.daily.max.bars))] <- 100 *
+    (100*log (coredata(cur.x.aligned$Close[id.score.daily.max.bars[which(!is.na(id.score.daily.max.bars))]+15]) /
+                coredata(cur.x.aligned$Close[id.score.daily.max.bars[which(!is.na(id.score.daily.max.bars))]+0]) ) [,1] ) /  
+    id.dsbmom.daily.max.t0[which(!is.na(id.score.daily.max.bars))]
+  
+  id.daily.min.reversal <- id.score.daily.min.bars
+  id.daily.min.reversal[which(!is.na(id.score.daily.min.bars))] <- 100 *
+    (100 * log (coredata(cur.x.aligned$Close[id.score.daily.min.bars[which(!is.na(id.score.daily.min.bars))]+15]) /
+                  coredata(cur.x.aligned$Close[id.score.daily.min.bars[which(!is.na(id.score.daily.min.bars))]+0]) ) [,1] ) /  
+    id.dsbmom.daily.min.t0[which(!is.na(id.score.daily.min.bars))]
+  
   # Contemporaneous RELVOL
   id.score.daily.max.t.exna <- 
     id.score.daily.max.t[which(!is.na(id.score.daily.max.t))]
   id.score.daily.min.t.exna <- 
     id.score.daily.min.t[which(!is.na(id.score.daily.min.t))]
+  
+  id.score.daily.max.t.exna
   
   # Relvol
   id.relvol.daily.max.t0 <- id.score.daily.max.t
@@ -123,9 +139,9 @@ for (i in 1:367) {
       id.vol.daily[id.score.daily.min.t.exna[x], x]) /
     sapply(1:length(id.score.daily.min.t.exna), function(x)
       id.voldta.daily[id.score.daily.min.t.exna[x], x])
-    
+  
   id.relvol.daily.max.l1 <- id.score.daily.max.t
-  id.relvol.daily.max.l1[which(!is.na(id.score.daily.max.t))] <- 
+  id.relvol.daily.max.l1[which(!is.na(id.score.daily.max.t))] <-
     sapply(1:length(id.score.daily.max.t.exna), function(x) 
       id.vol.daily[id.score.daily.max.t.exna[x]-1, x]) /
     sapply(1:length(id.score.daily.max.t.exna), function(x)
@@ -168,36 +184,42 @@ for (i in 1:367) {
   
   # 3) Build dataframe of daily characteristics
   cur.d.x.aligned.ret <- diff (log(cur.d.x.aligned$Close), 1) * 100
-#   sp.d.x.aligned.ret <- diff (log(sp.d.x.aligned$Close), 1) * 100
-#   cur.d.x.aligned.aret <- cur.d.x.aligned.ret - 
-#                             cur.rbetas.d.x.shifted * sp.d.x.aligned.ret
+  #   sp.d.x.aligned.ret <- diff (log(sp.d.x.aligned$Close), 1) * 100
+  #   cur.d.x.aligned.aret <- cur.d.x.aligned.ret - 
+  #                             cur.rbetas.d.x.shifted * sp.d.x.aligned.ret
   
   if (i == 1) {
     # build dataframe with date as key
     stocks.dsbmom.max <- data.frame (id.dsbmom.daily.max.t0,
-                                  row.names=index(cur.d.x.aligned))
+                                     row.names=index(cur.d.x.aligned))
     stocks.dsbmom.min <- data.frame (id.dsbmom.daily.min.t0,
-                                  row.names=index(cur.d.x.aligned))
+                                     row.names=index(cur.d.x.aligned))
+    stocks.reverse.max <- data.frame (id.daily.max.reversal,
+                                      row.names=index(cur.d.x.aligned))
+    stocks.reverse.min <- data.frame (id.daily.min.reversal,
+                                      row.names=index(cur.d.x.aligned))
     
     stocks.relvol.max <- data.frame (id.relvol.daily.max.t0,
-                                  row.names=index(cur.d.x.aligned))
+                                     row.names=index(cur.d.x.aligned))
     stocks.relvol.min <- data.frame (id.relvol.daily.min.t0,
-                                  row.names=index(cur.d.x.aligned))
+                                     row.names=index(cur.d.x.aligned))
     stocks.relvol.max.l1 <- data.frame (id.relvol.daily.max.l1,
-                                     row.names=index(cur.d.x.aligned))
+                                        row.names=index(cur.d.x.aligned))
     stocks.relvol.min.l1 <- data.frame (id.relvol.daily.min.l1,
-                                     row.names=index(cur.d.x.aligned))
+                                        row.names=index(cur.d.x.aligned))
     stocks.relvol.max.l5 <- data.frame (id.relvol.daily.max.l5,
-                                     row.names=index(cur.d.x.aligned))
+                                        row.names=index(cur.d.x.aligned))
     stocks.relvol.min.l5 <- data.frame (id.relvol.daily.min.l5,
-                                     row.names=index(cur.d.x.aligned))
+                                        row.names=index(cur.d.x.aligned))
     stocks.relvol.max.l15 <- data.frame (id.relvol.daily.max.l15,
-                                      row.names=index(cur.d.x.aligned))
+                                         row.names=index(cur.d.x.aligned))
     stocks.relvol.min.l15 <- data.frame (id.relvol.daily.min.l15,
-                                      row.names=index(cur.d.x.aligned))
+                                         row.names=index(cur.d.x.aligned))
     
     names(stocks.dsbmom.max)[1] <- cur.symbol
     names(stocks.dsbmom.min)[1] <- cur.symbol
+    names(stocks.reverse.max)[1] <- cur.symbol
+    names(stocks.reverse.min)[1] <- cur.symbol
     
     names(stocks.relvol.max)[1] <- cur.symbol
     names(stocks.relvol.min)[1] <- cur.symbol
@@ -211,31 +233,37 @@ for (i in 1:367) {
     
   } else {
     # create temporary dataframes for current symbol
-
+    
     cur.dsbmom.max <- data.frame (id.dsbmom.daily.max.t0,
                                   row.names=index(cur.d.x.aligned))
     cur.dsbmom.min <- data.frame (id.dsbmom.daily.min.t0,
                                   row.names=index(cur.d.x.aligned))
+    cur.reverse.max <- data.frame (id.daily.max.reversal,
+                                   row.names=index(cur.d.x.aligned))
+    cur.reverse.min <- data.frame (id.daily.min.reversal,
+                                   row.names=index(cur.d.x.aligned))
     
     cur.relvol.max <- data.frame (id.relvol.daily.max.t0,
-                               row.names=index(cur.d.x.aligned))
+                                  row.names=index(cur.d.x.aligned))
     cur.relvol.min <- data.frame (id.relvol.daily.min.t0,
-                               row.names=index(cur.d.x.aligned))
+                                  row.names=index(cur.d.x.aligned))
     cur.relvol.max.l1 <- data.frame (id.relvol.daily.max.l1,
-                                  row.names=index(cur.d.x.aligned))
+                                     row.names=index(cur.d.x.aligned))
     cur.relvol.min.l1 <- data.frame (id.relvol.daily.min.l1,
-                                  row.names=index(cur.d.x.aligned))
+                                     row.names=index(cur.d.x.aligned))
     cur.relvol.max.l5 <- data.frame (id.relvol.daily.max.l5,
-                                  row.names=index(cur.d.x.aligned))
+                                     row.names=index(cur.d.x.aligned))
     cur.relvol.min.l5 <- data.frame (id.relvol.daily.min.l5,
-                                  row.names=index(cur.d.x.aligned))
+                                     row.names=index(cur.d.x.aligned))
     cur.relvol.max.l15 <- data.frame (id.relvol.daily.max.l15,
-                                   row.names=index(cur.d.x.aligned))
+                                      row.names=index(cur.d.x.aligned))
     cur.relvol.min.l15 <- data.frame (id.relvol.daily.min.l15,
-                                   row.names=index(cur.d.x.aligned))      
-
+                                      row.names=index(cur.d.x.aligned))      
+    
     names(cur.dsbmom.max)[1] <- cur.symbol
     names(cur.dsbmom.min)[1] <- cur.symbol
+    names(cur.reverse.max)[1] <- cur.symbol
+    names(cur.reverse.min)[1] <- cur.symbol
     
     names(cur.relvol.max)[1] <- cur.symbol
     names(cur.relvol.min)[1] <- cur.symbol
@@ -246,9 +274,11 @@ for (i in 1:367) {
     names(cur.relvol.max.l15)[1] <- cur.symbol
     names(cur.relvol.min.l15)[1] <- cur.symbol    
     
-
+    
     stocks.dsbmom.max <- MergeStockdayPanels (stocks.dsbmom.max, cur.dsbmom.max)
     stocks.dsbmom.min <- MergeStockdayPanels (stocks.dsbmom.min, cur.dsbmom.min)
+    stocks.reverse.max <- MergeStockdayPanels (stocks.reverse.max, cur.reverse.max)
+    stocks.reverse.min <- MergeStockdayPanels (stocks.reverse.min, cur.reverse.min)
     
     stocks.relvol.max <- MergeStockdayPanels (stocks.relvol.max, cur.relvol.max)
     stocks.relvol.min <- MergeStockdayPanels (stocks.relvol.min, cur.relvol.min)
@@ -265,11 +295,11 @@ for (i in 1:367) {
 
 # save panel data objects to file
 save (
-      stocks.dsbmom.max, stocks.dsbmom.min, 
-      stocks.relvol.max, stocks.relvol.min, stocks.relvol.max.l1, stocks.relvol.min.l1,
-      stocks.relvol.max.l5, stocks.relvol.min.l5, stocks.relvol.max.l15, stocks.relvol.min.l15,
-      
-      file=paste(data.path.out, "PanelHiLoDSBM_RVOL", suffix,".pdb", sep=""))
+  stocks.dsbmom.max, stocks.dsbmom.min, stocks.reverse.max, stocks.reverse.min,
+  stocks.relvol.max, stocks.relvol.min, stocks.relvol.max.l1, stocks.relvol.min.l1,
+  stocks.relvol.max.l5, stocks.relvol.min.l5, stocks.relvol.max.l15, stocks.relvol.min.l15,
+  
+  file=paste(data.path.out, "PanelHiLoDSBM_RVOL", suffix,".pdb", sep=""))
 
 beep()
 # ----- CLEAN-UP ---------------------------------------------------------------
