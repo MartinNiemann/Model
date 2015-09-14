@@ -1,0 +1,37 @@
+.Rproj.user
+.Rhistory
+.RData
+Output
+.gitattributes
+01_HFT_stock_mins.emf
+02_HFT_stock_mins_log_terciles.emf
+03_IEE_vs_HFT_full.emf
+03_IEE_vs_HFT_full2.emf
+Coef_Interpretation.xlsm
+Dataload_Final.RData
+Graphs
+NAB_Winz.RData
+NMS_Winz.RData
+Results.xlsm
+Results.xlsx
+Results_EE_score.xlsx
+Results_HFT_flags.xlsx
+Results_HFT_flagsV.xlsx
+Results_IVREG_NAB.xlsx
+Results_IVREG_NAB2.xlsx
+Results_IVREG_NAB3.xlsx
+Results_IVREG_NMS.xlsx
+Results_IVREG_NMS2.xlsx
+Results_IVREG_NMS3.xlsx
+Results_Price.xlsx
+Results_Size.xlsx
+Results_TOV.xlsx
+Results_VOLE.xlsx
+"E1_CHD 20100506.emf"
+"E4_AAPL 20110210.emf"
+"E1+_IPG 20100506.emf"
+"E2+_DD 20110131.emf"
+"E2_ILMN 20130712.emf"
+"E3+_HPQ 20110818.emf"
+"E3_JNJ 20100506.emf"
+"HFT Documentation.Rmd"

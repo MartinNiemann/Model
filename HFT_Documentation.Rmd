@@ -1,0 +1,50 @@
+---
+title: "HFT Documentation"
+author: "Martin Niemann"
+date: "Tuesday, December 9, 2014"
+output: html_document
+---
+\ 
+\ 
+
+# How to replicate paper results
+\ 
+
+## 1. Preparation
+* Run Main.R until "options(warn = 1)"
+* Run Analysis.R, complete section 1. DATALOAD  
+  This will load all pre-calculated panel variables
+* Go to 3.1b) select date range, and pick REG NMS 1 for NMS sample or NAB to
+  initialize range.idx with the right period
+* Run 3.1c) Check data completeness and filter symbols and check outputs of
+  summary(stocksel.complete) whether number of NA's look ok
+* Run 3.2a) "Panelize" individual variables, make sure to comment/uncomment the
+  right variables under "remove erroneous variables"
+* Run 3.2b) Manual Adjustments of PDF  
+* In 3.2d) Winsorization & Distribution Check, make sure to choose the right
+  variable indices in "for (i in c(3:x))", x should be index of last variable 
+  prior to NMS/NAB dummy
+  
+## 2. Descriptive Statistics
+To start, run 2.3) Data Summary Statistics Overview  
+Except for regression sample-specific summary tables, all analyses can be run
+after running section 1. DATALOAD
+
+### 2.1 Graphs
+* Figure 1: % of stock-mintes with HFT activity  
+  Run 2.3) Data Summary Statistics Overview until (and including)
+  2.3a0) HFT MINs per stock-minutes
+* Figure 2: Daily #HFT flags cross-sectional aggregates  
+  Run 2.3a11) HFT flags per Stock with Size Tercile Averages
+* Figure 3: Intraday extreme events and HFT activity  
+  Run 2.4) EE and HFT activity combined plots -> 
+  2.4a) EED+EEU mean + HFT
+
+### 2.2 Tables
+* Yearly summary stats  
+  In 2.6a) prepare variable for analysis, set suffix and test.df to selected 
+  variable. Run 2.6b) full sample summary & yearly subsets to produce excel 
+  outputs. Use Results.xlsx to import into Paper style table format
+* Sample-specific tables generated in section 4.9) Descriptives of prepared 
+  sample, but code can only be run after running section 3) to build the full
+  panel dataframe
