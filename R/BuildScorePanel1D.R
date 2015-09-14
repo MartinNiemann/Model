@@ -75,12 +75,12 @@ for (i in 1:368) {
   
   # apply NA to time-based look-up
   id.score.daily.max.t[is.na(id.score.daily.max)] <- NA
-  id.score.daily.min.t[is.na(id.score.daily.max)] <- NA
+  id.score.daily.min.t[is.na(id.score.daily.min)] <- NA
   
   # calculate lookup bars
-  id.score.daily.max.bars <- 1 + (1:ncol(id.score.daily.hi)-1) * daybars +
+  id.score.daily.max.bars <- (1:ncol(id.score.daily.hi)-1) * daybars +
     id.score.daily.max.t    
-  id.score.daily.min.bars <- 1 + (1:ncol(id.score.daily.hi)-1) * daybars +
+  id.score.daily.min.bars <- (1:ncol(id.score.daily.hi)-1) * daybars +
     id.score.daily.min.t
   
   # 1b) hft data
@@ -105,25 +105,31 @@ for (i in 1:368) {
   
   
   # Relative 15 min Reversal vs. DSBMOM max/min at t0  
+  # 1) upside spike, downside reversal
+  #    --> negative values = reversal
   id.daily.max.reversal <- id.score.daily.max.bars
   id.daily.max.reversal[which(!is.na(id.score.daily.max.bars))] <- 100 *
-    (100*log (coredata(cur.x.aligned$Close[id.score.daily.max.bars[which(!is.na(id.score.daily.max.bars))]+15]) /
-      coredata(cur.x.aligned$Close[id.score.daily.max.bars[which(!is.na(id.score.daily.max.bars))]+0]) ) [,1] ) /  
+    (100*log (coredata(cur.x.aligned$Close[id.score.daily.max.bars[
+      which(!is.na(id.score.daily.max.bars))]+15]) /
+      coredata(cur.x.aligned$High[id.score.daily.max.bars[
+        which(!is.na(id.score.daily.max.bars))]+0]) ) ) /  
     id.dsbmom.daily.max.t0[which(!is.na(id.score.daily.max.bars))]
   
+  # 2) downside spike, upside reversal
+  #    --> negative values = reversal
   id.daily.min.reversal <- id.score.daily.min.bars
   id.daily.min.reversal[which(!is.na(id.score.daily.min.bars))] <- 100 *
-    (100 * log (coredata(cur.x.aligned$Close[id.score.daily.min.bars[which(!is.na(id.score.daily.min.bars))]+15]) /
-      coredata(cur.x.aligned$Close[id.score.daily.min.bars[which(!is.na(id.score.daily.min.bars))]+0]) ) [,1] ) /  
-       id.dsbmom.daily.min.t0[which(!is.na(id.score.daily.min.bars))]
+    (100*log (coredata(cur.x.aligned$Close[id.score.daily.min.bars[
+      which(!is.na(id.score.daily.min.bars))]+15]) /
+      coredata(cur.x.aligned$Low[id.score.daily.min.bars[
+        which(!is.na(id.score.daily.min.bars))]]) ) ) /  
+    id.dsbmom.daily.min.t0[which(!is.na(id.score.daily.min.bars))]
   
   # Contemporaneous RELVOL
   id.score.daily.max.t.exna <- 
     id.score.daily.max.t[which(!is.na(id.score.daily.max.t))]
   id.score.daily.min.t.exna <- 
     id.score.daily.min.t[which(!is.na(id.score.daily.min.t))]
-  
-  id.score.daily.max.t.exna
   
   # Relvol
   id.relvol.daily.max.t0 <- id.score.daily.max.t
@@ -183,7 +189,7 @@ for (i in 1:368) {
       mean(id.voldta.daily[max(1,(id.score.daily.min.t.exna[x]-15)):(id.score.daily.min.t.exna[x]-1), x]))
   
   # 3) Build dataframe of daily characteristics
-  cur.d.x.aligned.ret <- diff (log(cur.d.x.aligned$Close), 1) * 100
+#   cur.d.x.aligned.ret <- diff (log(cur.d.x.aligned$Close), 1) * 100
 #   sp.d.x.aligned.ret <- diff (log(sp.d.x.aligned$Close), 1) * 100
 #   cur.d.x.aligned.aret <- cur.d.x.aligned.ret - 
 #                             cur.rbetas.d.x.shifted * sp.d.x.aligned.ret

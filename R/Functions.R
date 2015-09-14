@@ -1063,6 +1063,62 @@ InspectEvent <- function(df, row) t(df[row,c(1:16,(17+241*8):ncol(df))])
 PlotEvent <- function(df, row, v) plot(GetTseries(df, row, v), type="l", lwd=2)
   # wrapper function to plot a selected event's variables in "FEW"
 
+PlotEventFull <- function(df, row) {
+
+  par (mfrow = c(3, 1), oma = c(0,0,2,1) )
+          
+  # return graph
+  plot(x=-60:60, y=GetTseries(df, row, "r")[1:121], type="l", 
+         lwd=2, #ylim=c(lb.y, ub.y), 
+         xlab=paste("time in minutes from t0", sep=""), 
+         ylab="cumulative return from t=0, in percent", xaxt='n',
+         main="Stock returns"
+       )
+  axis(1,seq(-60,60, 15))
+  abline(v=0, col="gray")
+
+#   # return graph
+#   tmpseries <- GetTseries(df, row, "r")[1:121]
+#   
+#   tmpseries <- (1 - tmpseries/(max(tmpseries, na.rm = T) - min(tmpseries, na.rm=T)))
+#   
+#   tmpseries <- tmpseries * df[row,]$PREW60.rel.r
+#   
+#   plot(x=-60:60, y=tmpseries, type="l", 
+#        lwd=2, #ylim=c(lb.y, ub.y), 
+#        xlab=paste("time in minutes from t0", sep=""), 
+#        ylab="IEE_dn", xaxt='n',
+#        main="intraday extreme event measure")
+#   axis(1,seq(-60,60, 15))
+#   abline(v=0, col="gray")
+  
+  
+  # HFT graph
+  plot(x=-60:60, y=GetTseries(df, row, "hft")[1:121], type="l", 
+       lwd=2, #ylim=c(lb.y, ub.y), 
+       xlab=paste("time in minutes from t0", sep=""), 
+       ylab="HFT flags/minute", xaxt='n',
+       main="HFT intensity"
+       )
+  axis(1,seq(-60,60, 15))
+  abline(v=0, col="gray")
+
+  # Vol graph
+  plot(x=-60:60, y=GetTseries(df, row, "v")[1:121], type="l", 
+       lwd=2, #ylim=c(lb.y, ub.y), 
+       xlab=paste("time in minutes from t0", sep=""), 
+       ylab="relative volume", xaxt='n',
+       main="Relative trading volume"
+       )
+  axis(1,seq(-60,60, 15))
+  abline(v=0, col="gray")
+  
+  title( main = paste("Extreme event in", df$symbol[row], "at", 
+                     df$timestamp[row], round(df[row,]$PREW60.rel.r, 2), 
+                     "sigma", sep=" "), outer = T, cex=1.2)  
+  
+}
+
 PlotLo <- function(x, lo.filt=.05) {
   plot(x)
   lines(lowess(x, f=lo.filt), col="blue", lwd=2)
@@ -1552,7 +1608,7 @@ SummaryW <- function(model) {
   results
 }
 
-Reg1stStage <- function(pdf, regf, classes, full=T, verbose=T) {
+Reg1stStageOld <- function(pdf, regf, classes, full=T, verbose=T) {
   # full sample results
   if (full) {
     print(" --- 1) Overall 1st stage regression ---")
@@ -1572,7 +1628,28 @@ Reg1stStage <- function(pdf, regf, classes, full=T, verbose=T) {
   }
 }
 
-Reg1stStageGetHat <- function(pdf, regf, classes, segment=0) {
+Reg1stStage <- function(pdf, regf, classes, full=T, verbose=T) {
+  # full sample results
+  if (full) {
+    print(" --- 1) Overall 1st stage regression ---")
+    test.fe2 <- felm (regf, pdf)
+    if (verbose) print(summary (test.fe2)) else 
+      print(rbind(test.fe2$coefficients, test.fe2$rpval))
+  }
+  # results by level
+  for (i in seq_along(levels(classes))) {
+    lev <- levels (classes)[i]
+    print(paste(paste("2.", i, sep=""),
+                "Subset 1st stage regression on level", lev))
+    tpdf <- pdf[classes==lev,]
+    test.fe2 <- felm (regf, tpdf)
+    if (verbose) print(summary (test.fe2)) else
+      print(rbind(test.fe2$coefficients, test.fe2$rpval))
+  }
+}
+
+
+Reg1stStageGetHatOld <- function(pdf, regf, classes, segment=0) {
   # obtains IV estimate "beta-hat" for given segment
   # (0=full sample, 1-N: subset given by X-tile class number)
   if (segment == 0) {
@@ -1590,6 +1667,26 @@ Reg1stStageGetHat <- function(pdf, regf, classes, segment=0) {
     beta.hat <- test.fe2$fitted
   }
 }
+
+Reg1stStageGetHat <- function(pdf, regf, classes, segment=0) {
+  # obtains IV estimate "beta-hat" for given segment
+  # (0=full sample, 1-N: subset given by X-tile class number)
+  if (segment == 0) {
+    print(" --- Overall 1st stage regression ---")
+    test.fe2 <- felm (regf, pdf)
+    print(summary(test.fe2))
+    beta.hat <- test.fe2$fitted
+  } else {
+    i <- segment
+    lev <- levels(classes)[i]
+    print(paste("Subset 1st stage regression on level", lev))
+    tpdf <- pdf[classes==lev,]
+    test.fe2 <- felm (regf, tpdf)
+    print(summary(test.fe2))
+    beta.hat <- test.fe2$fitted
+  }
+}
+
 
 Vif <-function (in_frame, thresh=10, trace=T) {
   require(fmsb)

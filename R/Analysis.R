@@ -3026,9 +3026,9 @@ plot(GetTseries(events.dn.df, 4, "hft"), type="l")
 chartSeries(cur.x.aligned['2010-05-06'], theme="white")
 plot(id.score[which(as.Date(index(cur.x.aligned)) == "2010-05-06")])
 plot(id.dsbmom[which(as.Date(index(cur.x.aligned)) == "2010-05-06")])
-InspectEvent(test.df, 3)
+InspectEvent(events.master.dn.df, 3)
 # inspect event characteristics
-PlotEvent(events.master.dn.df, 389, "v")
+PlotEvent(events.master.dn.df, 389, "r")
 abline(h=0, col="blue", lwd=2)
 
 head(colnames(test.df),50)

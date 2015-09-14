@@ -75,9 +75,9 @@ for (i in 1:367) {
   id.score.daily.min.t[is.na(id.score.daily.max)] <- NA
   
   # calculate lookup bars
-  id.score.daily.max.bars <- 1 + (1:ncol(id.score.daily.hi)-1) * daybars +
+  id.score.daily.max.bars <- (1:ncol(id.score.daily.hi)-1) * daybars +
     id.score.daily.max.t    
-  id.score.daily.min.bars <- 1 + (1:ncol(id.score.daily.hi)-1) * daybars +
+  id.score.daily.min.bars <- (1:ncol(id.score.daily.hi)-1) * daybars +
     id.score.daily.min.t
   
   # 1b) hft data
