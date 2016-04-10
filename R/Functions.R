@@ -348,21 +348,6 @@ GetTseriesAvg <- function (df, row, varname, t.start, t.end) {
   return (mean(tseries.selected, na.rm=TRUE))
 }
 
-GetTseriesAvg.01 <- function (df, row, varname, t.start, t.end) {
-  # returns average of chosen variable (>0) in selected window,
-  # constraining window boundaries to time series
-  # Args: df = event dataframe with initialized [x]_[t] variables,
-  #       row = event index (by row), varname = [x]_
-  #       t.start/.end = start/end offset for selected period
-  #         (indicated as offsets relative to t)
-  # Returns: average of chosen variable between t.start/.end
-  tseries <- GetTseries (df, row, varname)
-  sel.start <- max(1, t.start+period.id.window+1)
-  sel.end <- min(length(tseries), t.end+period.id.window+1)
-  tseries.selected <- tseries[sel.start:sel.end]
-  return (mean(tseries.selected>0, na.rm=TRUE))
-}
-
 GetTseriesSqRootAvg <- function (df, row, varname, t.start, t.end) {
   # returns average of chosen variable in selected window,
   # by averaging squares, then taking the root of the result
@@ -706,8 +691,6 @@ na.remove <- function(x) x <- x[!is.na(x)]
 
 Std <- function(x) (na.remove(x) - mean(x, na.rm=T)) / sd(x, na.rm=T)
   # standardize value range of variable (for effective Box-Cox-Transform)
-
-Std <- function(x) (na.remove(x) - mean(x, na.rm=T)) / sd(x, na.rm=T)
 
 Summarize <- function(x) {
   # calculates statistics of interest for a given variable
